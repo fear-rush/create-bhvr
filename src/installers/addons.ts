@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import path from "node:path";
 import fs from "fs-extra";
 import { removeLintTools } from "@/lib/remove-lint-tools";
@@ -117,6 +118,19 @@ export async function installAddons(options: ResolvedProjectOptions): Promise<vo
 			path.join(projectPath, "server", ".env.example"),
 			`${serverEnv.join("\n")}\n`,
 		);
+	for (const workspace of ["", "server", "client"]) {
+		const file = path.join(projectPath, workspace, ".env");
+		const example = `${file}.example`;
+		if (!(await fs.pathExists(example)) || (await fs.pathExists(file))) continue;
+		let content = await fs.readFile(example, "utf8");
+		if (workspace === "server" && options.auth === "better-auth") {
+			content = content.replace(
+				/^BETTER_AUTH_SECRET=.*$/m,
+				`BETTER_AUTH_SECRET=${randomBytes(32).toString("hex")}`,
+			);
+		}
+		await fs.writeFile(file, content, { mode: 0o600, flag: "wx" });
+	}
 	if (Object.keys(rootScripts).length)
 		await updatePackage(projectPath, "", (pkg) => {
 			Object.assign(pkg.scripts, rootScripts);

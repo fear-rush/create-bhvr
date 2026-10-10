@@ -21,17 +21,20 @@ export const create = async (projectDirectory: string, options: ProjectOptions) 
 				console.log(pc.cyan("  bun run hooks:install"));
 			}
 			if (result.database === "postgres") {
-				console.log(pc.cyan("  cp server/.env.example server/.env"));
+				console.log(
+					"  server/.env is ready. Update DATABASE_URL if using a different PostgreSQL instance.",
+				);
 			}
-			if (result.auth === "better-auth")
-				console.log(pc.cyan("  cp client/.env.example client/.env"));
 			if (result.auth === "better-auth") {
 				console.log(
-					"  Set BETTER_AUTH_SECRET in server/.env. See README.md for authentication setup.",
+					"  A random BETTER_AUTH_SECRET was generated in server/.env. client/.env is ready.",
+				);
+				console.log(
+					"  Review credentials and server/client URLs before deployment. See README.md for authentication setup.",
 				);
 			}
 			if (result.dockerPostgres) {
-				console.log(pc.cyan("  cp .env.example .env"));
+				console.log("  .env is ready with local PostgreSQL settings. Update them if needed.");
 				console.log(pc.cyan("  bun run db:up"));
 			}
 			if (result.auth === "better-auth") console.log(pc.cyan("  bun run db:migrate"));

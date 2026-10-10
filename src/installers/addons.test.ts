@@ -51,6 +51,9 @@ test("Docker can be generated independently and its down command preserves data"
 	expect(root.scripts["db:down"]).toBe("docker compose down");
 	expect(await fs.pathExists(path.join(project, "compose.yaml"))).toBe(true);
 	expect(await fs.pathExists(path.join(project, "server/src/db"))).toBe(false);
+	expect(await fs.readFile(path.join(project, ".env"), "utf8")).toBe(
+		await fs.readFile(path.join(project, ".env.example"), "utf8"),
+	);
 });
 
 test("auth, Query, routing, and Oxc compose without installing packages", async () => {
@@ -78,7 +81,16 @@ test("auth, Query, routing, and Oxc compose without installing packages", async 
 	expect(entry).toContain("credentials: true");
 	expect(entry).toContain('"/health"');
 	expect(await fs.pathExists(path.join(project, "server/drizzle/0000_auth.sql"))).toBe(true);
-	expect(await fs.pathExists(path.join(project, "server/.env"))).toBe(false);
+	const serverEnv = await fs.readFile(path.join(project, "server/.env"), "utf8");
+	const example = await fs.readFile(path.join(project, "server/.env.example"), "utf8");
+	expect(serverEnv).toMatch(/^BETTER_AUTH_SECRET=[a-f0-9]{64}$/m);
+	expect(example).toContain("BETTER_AUTH_SECRET=\n");
+	expect(serverEnv).toContain(
+		"DATABASE_URL=postgresql://bhvr:bhvr_local_password@localhost:5432/bhvr",
+	);
+	expect(await fs.readFile(path.join(project, "client/.env"), "utf8")).toBe(
+		await fs.readFile(path.join(project, "client/.env.example"), "utf8"),
+	);
 	expect(await fs.pathExists(path.join(project, "eslint.config.js"))).toBe(false);
 	expect(await fs.pathExists(path.join(project, "client/eslint.config.js"))).toBe(false);
 	expect(Object.keys(root.devDependencies).some((name) => name.includes("eslint"))).toBe(false);
@@ -113,5 +125,48 @@ test("auth rejects custom entry points that cannot be wired automatically", asyn
 		await fs.writeFile(entry, source);
 		await expect(installAddons(options)).rejects.toThrow("need manual auth wiring");
 		expect(await fs.readFile(entry, "utf8")).toBe(source);
+	}
+});
+
+test("Drizzle creates a local database env without auth files", async () => {
+	const project = await generate({ database: "postgres" });
+	expect(await fs.readFile(path.join(project, "server/.env"), "utf8")).toBe(
+		await fs.readFile(path.join(project, "server/.env.example"), "utf8"),
+	);
+	expect(await fs.pathExists(path.join(project, "client/.env"))).toBe(false);
+	expect(await fs.pathExists(path.join(project, ".env"))).toBe(false);
+});
+
+test("auth secrets are unique to each generated project and absent from examples", async () => {
+	const first = await generate({ auth: "better-auth", dockerPostgres: true });
+	const second = await generate({ auth: "better-auth", dockerPostgres: true });
+	const readSecret = async (project: string) => {
+		const content = await fs.readFile(path.join(project, "server/.env"), "utf8");
+		return content.match(/^BETTER_AUTH_SECRET=(.+)$/m)?.[1];
+	};
+	const secret = await readSecret(first);
+	expect(secret).toMatch(/^[a-f0-9]{64}$/);
+	expect(await readSecret(second)).not.toBe(secret);
+	expect(await fs.readFile(path.join(first, "server/.env.example"), "utf8")).not.toContain(secret!);
+	expect(await fs.readFile(path.join(first, ".env"), "utf8")).toBe(
+		await fs.readFile(path.join(first, ".env.example"), "utf8"),
+	);
+});
+
+test("installing addons preserves existing local environment files", async () => {
+	const project = await generate();
+	const contents = {
+		".env": "POSTGRES_PORT=5433\n",
+		"server/.env": "DATABASE_URL=postgresql://custom\nBETTER_AUTH_SECRET=keep-this-secret\n",
+		"client/.env": "VITE_SERVER_URL=https://custom.example\n",
+	};
+	for (const [file, content] of Object.entries(contents)) {
+		await fs.writeFile(path.join(project, file), content);
+	}
+	await installAddons(
+		resolveOptions({ projectName: project, auth: "better-auth", dockerPostgres: true }),
+	);
+	for (const [file, content] of Object.entries(contents)) {
+		expect(await fs.readFile(path.join(project, file), "utf8")).toBe(content);
 	}
 });

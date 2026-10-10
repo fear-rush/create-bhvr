@@ -76,7 +76,7 @@ You can also use command-line options to skip the interactive prompts:
 
 Better Auth selects Drizzle PostgreSQL automatically when `--database` is omitted. Combining `--auth better-auth` with `--database none` fails before creating files. Docker is independent of both integrations. A plain project contains no database or auth dependencies and requires no addon environment variables. Existing nonempty directories are rejected without deleting their contents.
 
-Generated README files contain the setup steps for selected addons. Configuration examples are created only for selected addons; secrets are never generated or written by the CLI. Database migrations never run during install, build, or dev. Oxc projects are formatted after dependency installation. If using `--no-install`, run `bun install` and `bun run format` yourself.
+Generated README files contain the setup steps for selected addons. The CLI creates `.env.example` and local `.env` files for selected addons, preserving existing `.env` files. Better Auth projects receive a unique random `BETTER_AUTH_SECRET` in `server/.env`; examples contain no auth secret. Review database credentials and server/client origins before deployment. Database migrations never run during install, build, or dev. Oxc projects are formatted after dependency installation. If using `--no-install`, run `bun install` and `bun run format` yourself.
 
 ## Optional commit checks and API documentation
 

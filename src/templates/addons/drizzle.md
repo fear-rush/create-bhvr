@@ -1,6 +1,6 @@
 ## Drizzle PostgreSQL
 
-Copy `server/.env.example` to `server/.env` and set `DATABASE_URL` for your PostgreSQL instance. Database code stays inside the server workspace. Export application tables from `server/src/db/schema/index.ts`.
+`create-bhvr` creates `server/.env` with a local PostgreSQL connection string and preserves an existing `.env`. Update `DATABASE_URL` when using a different PostgreSQL instance. Database code stays inside the server workspace. Export application tables from `server/src/db/schema/index.ts`.
 
 1. Change the TypeScript schema.
 2. Run `bun run db:generate`.

@@ -1,6 +1,6 @@
 ## Local PostgreSQL with Docker
 
-Install Docker with Compose. Copy `.env.example` to `.env`, then run `bun run db:up`. PostgreSQL listens on localhost and stores data in a named volume. `bun run db:down` preserves that volume. `bun run db:logs` streams database logs.
+Install Docker with Compose, then run `bun run db:up`. `create-bhvr` creates `.env` with local PostgreSQL defaults and preserves an existing `.env`. PostgreSQL listens on localhost and stores data in a named volume. `bun run db:down` preserves that volume. `bun run db:logs` streams database logs.
 
 Change `POSTGRES_PORT` if another database uses port 5432. If using Drizzle, match the database name, username, password, and port in `server/.env` to the Compose settings. The example credentials are for local development. Use your deployment environment's connection string in production.
 
