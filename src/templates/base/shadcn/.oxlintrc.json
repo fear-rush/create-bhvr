@@ -1,0 +1,52 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "react"],
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {},
+	"env": {
+		"es2024": true
+	},
+	"ignorePatterns": [
+		"**/dist/**",
+		"**/build/**",
+		"**/.turbo/**",
+		"**/routeTree.gen.ts",
+		"**/drizzle/**"
+	],
+	"overrides": [
+		{
+			"files": ["client/**/*.{ts,tsx}"],
+			"env": {
+				"browser": true
+			},
+			"rules": {
+				"react/rules-of-hooks": "error",
+				"react/exhaustive-deps": "warn",
+				"react/only-export-components": [
+					"warn",
+					{
+						"allowConstantExport": true,
+						"allowExportNames": ["Route"]
+					}
+				]
+			}
+		},
+		{
+			"files": ["server/**/*.ts"],
+			"env": {
+				"node": true
+			},
+			"globals": {
+				"Bun": "readonly"
+			}
+		},
+		{
+			"files": ["client/src/components/ui/**/*.tsx"],
+			"rules": {
+				"react/only-export-components": "off"
+			}
+		}
+	]
+}

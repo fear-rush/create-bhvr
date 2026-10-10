@@ -1,12 +1,11 @@
 import { consola } from "consola";
 import pc from "picocolors";
-import type { ProjectOptions } from "@/types";
+import type { ProjectOptions, ResolvedProjectOptions } from "@/types";
 import { TEMPLATES } from "@/utils/templates";
 import { tryCatch } from "@/utils/try-catch";
+import { resolveOptions } from "./resolve-options";
 
-export async function promptForOptions(
-	options: ProjectOptions,
-): Promise<ProjectOptions> {
+export async function promptForOptions(options: ProjectOptions): Promise<ResolvedProjectOptions> {
 	let projectName = options.projectName;
 
 	if (!projectName && !options.yes) {
@@ -29,7 +28,7 @@ export async function promptForOptions(
 
 	let templateChoice = options.template || "default";
 
-	if (!options.yes && !options.branch) {
+	if (!options.yes && !options.branch && !options.template) {
 		const templateChoices = Object.keys(TEMPLATES).map((key) => ({
 			label: `${key} (${TEMPLATES[key]?.description})`,
 			value: key,
@@ -52,47 +51,6 @@ export async function promptForOptions(
 		templateChoice = data;
 	}
 
-	let useRpc = options.rpc;
-
-	if (!options.yes && !options.rpc) {
-		const { data: rpcResponse, error } = await tryCatch(
-			consola.prompt("Use Hono RPC client for type-safe API communication?", {
-				type: "confirm",
-				initial: false,
-			}),
-		);
-
-		if (error) {
-			consola.error("Project creation cancelled.");
-			process.exit(1);
-		}
-
-		useRpc = rpcResponse;
-	}
-
-	let linter = options.linter;
-
-	if (!options.yes && !options.linter) {
-		const { data: linterResponse, error } = await tryCatch(
-			consola.prompt("Select a linter:", {
-				type: "select",
-				options: [
-					{ label: "ESLint (default)", value: "eslint" },
-					{ label: "Biome", value: "biome" },
-				],
-				initial: "eslint",
-				cancel: "reject",
-			}),
-		);
-
-		if (error) {
-			console.log(pc.yellow("Project creation cancelled."));
-			process.exit(1);
-		}
-
-		linter = linterResponse as "eslint" | "biome";
-	}
-
 	let router = options.router;
 
 	if (!options.yes && !options.router) {
@@ -101,8 +59,6 @@ export async function promptForOptions(
 				type: "select",
 				options: [
 					{ label: "None (default)", value: "none" },
-					{ label: "React Router", value: "reactrouter" },
-					{ label: "React Router MPA", value: "reactroutermpa" },
 					{ label: "TanStack Router", value: "tanstackrouter" },
 				],
 				initial: "none",
@@ -115,11 +71,7 @@ export async function promptForOptions(
 			process.exit(1);
 		}
 
-		router = routerResponse as
-			| "none"
-			| "reactrouter"
-			| "reactroutermpa"
-			| "tanstackrouter";
+		router = routerResponse as ProjectOptions["router"];
 	}
 
 	let useTanstackQuery = options.tanstackQuery;
@@ -143,15 +95,70 @@ export async function promptForOptions(
 		useTanstackQuery = tanstackQueryResponse;
 	}
 
-	return {
+	let auth = options.auth;
+	if (!options.yes && auth === undefined) {
+		auth = (await consola.prompt("Select authentication:", {
+			type: "select",
+			cancel: "reject",
+			initial: "none",
+			options: [
+				{ label: "None (default)", value: "none" },
+				{
+					label: "Better Auth (includes Drizzle PostgreSQL)",
+					value: "better-auth",
+				},
+			],
+		})) as ProjectOptions["auth"];
+	}
+	let database = options.database;
+	if (!options.yes && database === undefined && auth !== "better-auth") {
+		database = (await consola.prompt("Select a database integration:", {
+			type: "select",
+			cancel: "reject",
+			initial: "none",
+			options: [
+				{ label: "None (default)", value: "none" },
+				{ label: "Drizzle + PostgreSQL", value: "postgres" },
+			],
+		})) as ProjectOptions["database"];
+	}
+	let dockerPostgres = options.dockerPostgres;
+	if (!options.yes && dockerPostgres === undefined) {
+		dockerPostgres = await consola.prompt("Include local PostgreSQL through Docker Compose?", {
+			type: "confirm",
+			cancel: "reject",
+			initial: false,
+		});
+	}
+
+	let precommit = options.precommit;
+	if (!options.yes && precommit === undefined) {
+		precommit = await consola.prompt("Include prek commit checks and secret scanning?", {
+			type: "confirm",
+			cancel: "reject",
+			initial: false,
+		});
+	}
+	let scalar = options.scalar;
+	if (!options.yes && scalar === undefined) {
+		scalar = await consola.prompt("Include Scalar API documentation?", {
+			type: "confirm",
+			cancel: "reject",
+			initial: false,
+		});
+	}
+	return resolveOptions({
 		...options,
 		projectName,
 		template: templateChoice,
 		tailwind: templateChoice === "tailwind" || templateChoice === "shadcn",
 		shadcn: templateChoice === "shadcn",
-		rpc: useRpc,
-		linter,
 		router,
 		tanstackQuery: useTanstackQuery,
-	};
+		auth,
+		database,
+		dockerPostgres,
+		precommit,
+		scalar,
+	});
 }

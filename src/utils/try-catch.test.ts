@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { tryCatch } from "./try-catch";
 
 describe("tryCatch", () => {
@@ -30,9 +30,7 @@ describe("tryCatch", () => {
 	});
 
 	it("should handle different data types", async () => {
-		const objectResult = await tryCatch(
-			Promise.resolve({ id: 1, name: "test" }),
-		);
+		const objectResult = await tryCatch(Promise.resolve({ id: 1, name: "test" }));
 		const numberResult = await tryCatch(Promise.resolve(42));
 		const booleanResult = await tryCatch(Promise.resolve(true));
 

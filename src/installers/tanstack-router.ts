@@ -1,49 +1,33 @@
 import path from "node:path";
-import fs from "fs-extra";
-import type { ProjectOptions } from "@/types";
-import yoctoSpinner from "yocto-spinner";
-import pc from "picocolors";
 import { consola } from "consola";
-import { addPackageDependency } from "@/utils/add-package-dependency";
+import fs from "fs-extra";
+import pc from "picocolors";
+import yoctoSpinner from "yocto-spinner";
+import type { ResolvedProjectOptions } from "@/types";
 import { EXTRAS_DIR } from "@/utils";
+import { addPackageDependency } from "@/utils/add-package-dependency";
 import { nameGenerator } from "@/utils/name-generator";
-import { execa } from "execa";
 
 export const tanstackRouterInstaller = async (
-	options: Required<ProjectOptions>,
+	options: ResolvedProjectOptions,
 ): Promise<boolean> => {
 	const spinner = yoctoSpinner({
 		text: "Setting up TanStack Router...",
 	}).start();
 
 	try {
-		// Check if bunx is available
-		try {
-			await execa("bunx", ["--version"]);
-		} catch {
-			spinner.error("bunx is not available");
-			consola.error(
-				pc.red("Error:"),
-				"bunx must be installed. Please install Bun first: https://bun.sh",
-			);
-			return false;
-		}
-
-		const { projectName, rpc, shadcn, tailwind, tanstackQuery } = options;
+		const { projectName, shadcn, tailwind, tanstackQuery } = options;
 
 		const projectPath = path.resolve(process.cwd(), projectName);
 		spinner.text = "Installing TanStack Router...";
 		await addPackageDependency({
-			dependencies: [
-				"@tanstack/react-router",
-				"@tanstack/react-router-devtools",
-			],
+			dependencies: ["@tanstack/react-router"],
 			target: "client",
 			projectName,
 		});
 
 		await addPackageDependency({
-			dependencies: ["@tanstack/router-plugin"],
+			dependencies: ["@tanstack/router-plugin", "@tanstack/router-cli"],
 			devMode: true,
 			target: "client",
 			projectName,
@@ -54,46 +38,16 @@ export const tanstackRouterInstaller = async (
 			shadcn,
 			tanstackRouter: true,
 		});
-		const viteConfigSrc = path.join(
-			EXTRAS_DIR,
-			"client",
-			"vite.config.ts",
-			viteConfigTemplate,
-		);
+		const viteConfigSrc = path.join(EXTRAS_DIR, "client", "vite.config.ts", viteConfigTemplate);
 		const viteConfigTarget = path.join(projectPath, "client", "vite.config.ts");
 		fs.copySync(viteConfigSrc, viteConfigTarget);
 
-		const rootTsxSrc = path.join(
-			EXTRAS_DIR,
-			"client",
-			"src",
-			"routes",
-			"__root.tsx",
-		);
-		const rootTsxTarget = path.join(
-			projectPath,
-			"client",
-			"src",
-			"routes",
-			"__root.tsx",
-		);
+		const rootTsxSrc = path.join(EXTRAS_DIR, "client", "src", "routes", "__root.tsx");
+		const rootTsxTarget = path.join(projectPath, "client", "src", "routes", "__root.tsx");
 		fs.copySync(rootTsxSrc, rootTsxTarget);
 
-		const indexTsxSrc = path.join(
-			EXTRAS_DIR,
-			"client",
-			"src",
-			"routes",
-			"index.tsx",
-			nameGenerator("index.tsx", { tanstackQuery, tailwind, shadcn, rpc }),
-		);
-		const indexTsxTarget = path.join(
-			projectPath,
-			"client",
-			"src",
-			"routes",
-			"index.tsx",
-		);
+		const indexTsxSrc = path.join(EXTRAS_DIR, "client", "src", "routes", "index.tsx", "index.tsx");
+		const indexTsxTarget = path.join(projectPath, "client", "src", "routes", "index.tsx");
 		fs.copySync(indexTsxSrc, indexTsxTarget);
 
 		const mainTsxSrc = path.join(
@@ -107,21 +61,21 @@ export const tanstackRouterInstaller = async (
 		fs.copySync(mainTsxSrc, mainTsxTarget);
 
 		const appTsxTarget = path.join(projectPath, "client", "src", "App.tsx");
-		fs.remove(appTsxTarget);
+		await fs.remove(appTsxTarget);
 
-		spinner.text = "Generating TanStack Route Tree...";
-
-		// await execa("vite", ["--config", "vite.config.ts", "--force"], {
-		// 	cwd: path.join(projectPath, "client"),
-		// });
-		//
-		await execa("bunx", ["vite", "build"], {
-			cwd: path.join(projectPath, "client"),
-		});
-
-		await execa("bunx", ["tsc", "-b"], {
-			cwd: path.join(projectPath, "client"),
-		});
+		await fs.writeJson(
+			path.join(projectPath, "client", "tsr.config.json"),
+			{
+				routesDirectory: "./src/routes",
+				generatedRouteTree: "./src/routeTree.gen.ts",
+			},
+			{ spaces: 2 },
+		);
+		const pkgPath = path.join(projectPath, "client", "package.json");
+		const pkg = await fs.readJson(pkgPath);
+		pkg.scripts.build = "tsr generate && tsc -b && vite build";
+		pkg.scripts["type-check"] = "tsr generate && tsc -b --noEmit";
+		await fs.writeJson(pkgPath, pkg, { spaces: 2 });
 
 		spinner.success("TanStack Router setup completed");
 		return true;

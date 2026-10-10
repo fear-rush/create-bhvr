@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { nameGenerator } from "./name-generator";
 
 describe("nameGenerator", () => {
@@ -10,7 +10,7 @@ describe("nameGenerator", () => {
 
 		it("should return original basename when all options are false", async () => {
 			const options = {
-				rpc: false,
+				feature: false,
 				shadcn: false,
 				tailwind: false,
 				tanstackQuery: false,
@@ -21,54 +21,52 @@ describe("nameGenerator", () => {
 
 		it("should return filename with '-with-' prefix when only one option is true", async () => {
 			const options = {
-				rpc: true,
+				feature: true,
 				shadcn: false,
 				tailwind: false,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("template.txt", options);
-			expect(result).toBe("template-with-rpc.txt");
+			expect(result).toBe("template-with-feature.txt");
 		});
 
 		it("should return multiple options with '-with-' prefix joined with dashes", async () => {
 			const options = {
-				rpc: true,
+				feature: true,
 				shadcn: true,
 				tailwind: false,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("template.txt", options);
-			expect(result).toBe("template-with-rpc-shadcn.txt");
+			expect(result).toBe("template-with-feature-shadcn.txt");
 		});
 
 		it("should sort options alphabetically after '-with-' prefix", async () => {
 			const options = {
 				tailwind: true,
-				rpc: true,
+				feature: true,
 				shadcn: true,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("template.txt", options);
-			expect(result).toBe("template-with-rpc-shadcn-tailwind.txt");
+			expect(result).toBe("template-with-feature-shadcn-tailwind.txt");
 		});
 
 		it("should handle all options selected", async () => {
 			const options = {
 				tailwind: true,
-				rpc: true,
+				feature: true,
 				shadcn: true,
 				tanstackQuery: true,
 			};
 			const result = nameGenerator("template.txt", options);
-			expect(result).toBe(
-				"template-with-rpc-shadcn-tailwind-tanstackquery.txt",
-			);
+			expect(result).toBe("template-with-feature-shadcn-tailwind-tanstackquery.txt");
 		});
 
 		it("should convert camelCase options to lowercase", async () => {
 			const options = {
 				tanstackQuery: true,
-				rpc: false,
+				feature: false,
 				shadcn: false,
 				tailwind: false,
 			};
@@ -80,7 +78,7 @@ describe("nameGenerator", () => {
 			const options = {
 				tanstackQuery: true,
 				tailwind: true,
-				rpc: false,
+				feature: false,
 				shadcn: false,
 			};
 			const result = nameGenerator("template.txt", options);
@@ -91,7 +89,7 @@ describe("nameGenerator", () => {
 			const options = {
 				shadcn: true,
 				tanstackQuery: true,
-				rpc: false,
+				feature: false,
 				tailwind: false,
 			};
 			const result = nameGenerator("template.txt", options);
@@ -100,7 +98,7 @@ describe("nameGenerator", () => {
 
 		it("should handle single tailwind option", async () => {
 			const options = {
-				rpc: false,
+				feature: false,
 				shadcn: false,
 				tailwind: true,
 				tanstackQuery: false,
@@ -109,33 +107,33 @@ describe("nameGenerator", () => {
 			expect(result).toBe("template-with-tailwind.txt");
 		});
 
-		it("should handle rpc and tanstackQuery combination", async () => {
+		it("should handle feature and tanstackQuery combination", async () => {
 			const options = {
-				rpc: true,
+				feature: true,
 				shadcn: false,
 				tailwind: false,
 				tanstackQuery: true,
 			};
 			const result = nameGenerator("template.txt", options);
-			expect(result).toBe("template-with-rpc-tanstackquery.txt");
+			expect(result).toBe("template-with-feature-tanstackquery.txt");
 		});
 
 		it("should handle different file extensions", async () => {
 			const options = {
-				rpc: true,
+				feature: true,
 				shadcn: false,
 				tailwind: false,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("component.tsx", options);
-			expect(result).toBe("component-with-rpc.tsx");
+			expect(result).toBe("component-with-feature.tsx");
 		});
 
 		it("should handle files without extensions", async () => {
 			const options = {
 				tailwind: true,
 				shadcn: false,
-				rpc: false,
+				feature: false,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("README", options);
@@ -144,13 +142,13 @@ describe("nameGenerator", () => {
 
 		it("should handle complex filenames", async () => {
 			const options = {
-				rpc: true,
+				feature: true,
 				shadcn: true,
 				tailwind: false,
 				tanstackQuery: false,
 			};
 			const result = nameGenerator("my-app-config.json", options);
-			expect(result).toBe("my-app-config-with-rpc-shadcn.json");
+			expect(result).toBe("my-app-config-with-feature-shadcn.json");
 		});
 	});
 });

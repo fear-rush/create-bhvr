@@ -21,13 +21,13 @@ If you have an idea for an enhancement, please make sure the enhancement has not
 3.  Make your changes.
 4.  Run `bun run build` to make sure your changes build correctly.
 5.  Use `bun dist` to run the CLI and test your new changes.
-6.  Use `bun lint` and `bun format` to apply Biome formatting and lint checking.
+6.  Use `bun lint` and `bun format` to apply Oxfmt formatting and Oxlint checks.
 7.  Use `bun test` to run unit tests. Depending on your PR consider adding tests.
 8.  Issue that pull request!
 
 ## Repo Structure
 
-`create-bhvr` is a CLI tool that generates full-stack TypeScript projects using the Bun + Hono + Vite + React (BHVR) stack. The tool scaffolds projects from GitHub templates and allows users to add various extensions like TanStack Query, React Router, and more.
+`create-bhvr` is a CLI tool that generates full-stack TypeScript projects using the Bun + Hono + Vite + React (BHVR) stack. The tool scaffolds projects from GitHub templates and allows users to add various extensions like TanStack Query, TanStack Router, and optional database, auth, prek, and Scalar integrations.
 
 ### Project Architecture
 
@@ -36,8 +36,6 @@ src/
 ├── commands/           # CLI command handlers
 │   └── create.ts      # Main create command implementation
 ├── installers/        # Extension installers
-│   ├── react-router.ts      # React Router setup
-│   ├── rpc.ts              # RPC integration
 │   ├── tanstack-query.ts   # TanStack Query setup
 │   └── tanstack-router.ts  # TanStack Router setup
 ├── lib/               # Core functionality
@@ -50,7 +48,6 @@ src/
 │   └── client/
 │       ├── src/App.tsx/     # App.tsx variants for different combinations
 │       ├── src/main.tsx/    # Entry point variants
-│       ├── src/components/  # Component variants
 │       └── vite.config.ts/  # Vite config variants
 ├── utils/             # Utility functions
 │   ├── name-generator.ts    # Generates template file names
@@ -70,7 +67,7 @@ Extensions in create-bhvr follow a modular architecture where each extension has
 
 2. **Template variants** (`src/templates/extras/`) that provide:
    - Pre-configured code for different extension combinations
-   - File variants named using a convention like `App-with-rpc-tailwind-tanstackquery.tsx`
+   - File variants named using a convention like `App-with-tailwind-tanstackquery.tsx`
    - Smart file selection based on enabled options
 
 #### Adding New Extensions
@@ -78,6 +75,7 @@ Extensions in create-bhvr follow a modular architecture where each extension has
 To add a new extension (e.g., "myextension"):
 
 1. **Create the installer** (`src/installers/myextension.ts`):
+
    ```typescript
    export const myExtensionInstaller = async (options: Required<ProjectOptions>) => {
      // Install dependencies
@@ -100,6 +98,7 @@ To add a new extension (e.g., "myextension"):
    - Support all possible combinations like `App-with-myextension-tailwind.tsx`
 
 3. **Update types** (`src/types.ts`):
+
    ```typescript
    export type ProjectOptions = {
      // ... existing options
@@ -112,15 +111,16 @@ To add a new extension (e.g., "myextension"):
 #### Template File Naming Convention
 
 The `nameGenerator()` utility creates file names based on enabled options:
+
 - Base file: `App.tsx`
 - With TanStack Query: `App-with-tanstackquery.tsx`
-- Multiple extensions: `App-with-rpc-tailwind-tanstackquery.tsx`
+- Multiple extensions: `App-with-tailwind-tanstackquery.tsx`
 
 Options are sorted alphabetically to ensure consistent naming.
 
 #### Updating GitHub Actions
 
-To make sure your new addition to extensions work, please add your combination to `.github/workflows/test-cli-options.yml` to make sure it does not break other builds. In order to do this you need to add your combination to the matrix and make sure a flag is included in `src/index.ts`.
+To make sure your new addition to extensions work, add your combination to `scripts/verify-generated.ts` and the exhaustive cases in `scripts/check-template-combinations.ts` to make sure it does not break other builds. In order to do this you need to add your combination to the matrix and make sure a flag is included in `src/index.ts`.
 
 ## License
 

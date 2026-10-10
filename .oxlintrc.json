@@ -1,0 +1,15 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript"],
+	"categories": {
+		"correctness": "error"
+	},
+	"env": {
+		"node": true,
+		"es2024": true
+	},
+	"globals": {
+		"Bun": "readonly"
+	},
+	"ignorePatterns": ["src/templates/**", "dist/**", "node_modules/**"]
+}

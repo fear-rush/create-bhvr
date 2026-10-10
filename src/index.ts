@@ -1,37 +1,44 @@
 #!/usr/bin/env node
 
-// @ts-expect-error: Shebang line
-
+import { Option } from "commander";
 import { create } from "@/commands/create";
 import { program } from "@/program";
-import { DEFAULT_REPO } from "./utils";
 
 program
 	.name("create-bhvr")
 	.description("Create a bhvr monorepo starter project")
 	.argument("[project-directory]", "directory to create the project in")
 	.option("-y, --yes", "skip confirmation prompts")
-	.option(
-		"--repo <repo>",
-		"specify a custom GitHub repository as source",
-		DEFAULT_REPO,
-	)
-	.option(
-		"--template <template>",
-		"specify a template (default, tailwind, shadcn)",
-		"default",
-	)
+	.option("--repo <repo>", "specify a custom GitHub repository as source")
+	.option("--template <template>", "specify a template (default, tailwind, shadcn)")
 	.option("--branch <branch>", "specify a branch to use from the repository")
-	.option("--rpc", "use Hono RPC client for type-safe API communication")
-	.option(
-		"--tsquery",
-		"use TanStack Query for data fetching and state management",
+	.option("--tsquery", "use TanStack Query for data fetching and state management")
+	.addOption(
+		new Option("--router <router>", "select a client router").choices(["none", "tanstackrouter"]),
 	)
-	.option(
-		"--router <router>",
-		"specify a client router (none, reactrouter, reactroutermpa, tanstackrouter)",
+	.addOption(
+		new Option("--database <database>", "select a database integration").choices([
+			"none",
+			"postgres",
+		]),
 	)
-	.option("--linter <linter>", "specify the linter to use (eslint or biome)")
-	.action(create);
+	.option("--docker-postgres", "include local PostgreSQL through Docker Compose")
+	.addOption(
+		new Option(
+			"--auth <auth>",
+			"select authentication (Better Auth includes Drizzle PostgreSQL)",
+		).choices(["none", "better-auth"]),
+	)
+	.option("--tanstack-query", "use TanStack Query (alias for --tsquery)")
+	.option("--precommit", "include prek commit checks and secret scanning")
+	.option("--scalar", "include Scalar API reference and an OpenAPI document")
+	.option("--no-install", "skip dependency installation")
+	.option("--no-git", "skip git initialization")
+	.action((directory, options) =>
+		create(directory, {
+			...options,
+			tanstackQuery: options.tanstackQuery ?? options.tsquery,
+		}),
+	);
 
-program.parse();
+await program.parseAsync();

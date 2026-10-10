@@ -1,5 +1,5 @@
-import { describe, it, expect } from "bun:test";
-import type { TemplateInfo, ProjectOptions, ProjectResult } from "./types";
+import { describe, expect, it } from "bun:test";
+import type { ProjectOptions, ProjectResult, TemplateInfo } from "./types";
 
 describe("TypeScript types", () => {
 	it("should define correct type structures", () => {
@@ -11,7 +11,7 @@ describe("TypeScript types", () => {
 
 		const options: ProjectOptions = {
 			projectName: "test-project",
-			linter: "biome",
+			router: "tanstackrouter",
 		};
 
 		const result: ProjectResult = {
@@ -22,7 +22,7 @@ describe("TypeScript types", () => {
 		};
 
 		expect(templateInfo.branch).toBe("main");
-		expect(options.linter).toBe("biome");
+		expect(options.router).toBe("tanstackrouter");
 		expect(result.projectName).toBe("test-project");
 	});
 });

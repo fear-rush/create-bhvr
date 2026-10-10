@@ -1,0 +1,48 @@
+import { afterAll, expect, test } from "bun:test";
+import app from "./index";
+import { sql } from "./db";
+
+afterAll(async () => { await sql.end(); });
+
+test("email auth, session protection, CORS, and sign-out work against PostgreSQL", async () => {
+  const origin = "http://localhost:5173";
+  const request = (route: string, init?: RequestInit) => app.request(`http://localhost:3000${route}`, init);
+  expect((await request("/health")).status).toBe(200);
+  expect(await (await request("/api/auth/get-session")).json()).toBeNull();
+
+  const email = `smoke-${Date.now()}@example.com`;
+  const signUp = await request("/api/auth/sign-up/email", {
+    method: "POST",
+    headers: { "content-type": "application/json", origin },
+    body: JSON.stringify({ name: "Test user", email, password: "test-password-12345" }),
+  });
+  expect(signUp.status).toBe(200);
+  expect(signUp.headers.get("access-control-allow-origin")).toBe(origin);
+  expect(signUp.headers.get("access-control-allow-credentials")).toBe("true");
+  const cookie = signUp.headers.getSetCookie().map((value) => value.split(";")[0]).join("; ");
+  expect(cookie).toContain("session_token");
+
+  const me = await request("/api/auth/get-session", { headers: { cookie, origin } });
+  expect(me.status).toBe(200);
+  expect((await me.json()).user.email).toBe(email);
+
+  const forbidden = await request("/api/auth/sign-up/email", {
+    method: "POST",
+    headers: { "content-type": "application/json", origin: "http://untrusted.example" },
+    body: JSON.stringify({ name: "Test user", email: "forbidden@example.com", password: "test-password-12345" }),
+  });
+  expect(forbidden.status).toBe(403);
+
+  const signOut = await request("/api/auth/sign-out", { method: "POST", headers: { cookie, origin } });
+  expect(signOut.status).toBe(200);
+  expect(await (await request("/api/auth/get-session", { headers: { cookie } })).json()).toBeNull();
+
+  const signIn = await request("/api/auth/sign-in/email", {
+    method: "POST",
+    headers: { "content-type": "application/json", origin },
+    body: JSON.stringify({ email, password: "test-password-12345" }),
+  });
+  expect(signIn.status).toBe(200);
+  const signInCookie = signIn.headers.getSetCookie().map((value) => value.split(";")[0]).join("; ");
+  expect((await request("/api/auth/get-session", { headers: { cookie: signInCookie } })).status).toBe(200);
+});

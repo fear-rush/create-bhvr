@@ -2,9 +2,10 @@
 	"compilerOptions": {
 		// Environment setup & latest features
 		"lib": ["ESNext"],
+		"types": ["bun", "node"],
 		"target": "ESNext",
 		"module": "ESNext",
-		"moduleResolution": "node", // Add this for ESM support
+		"moduleResolution": "bundler", // Add this for ESM support
 		"allowJs": true,
 		"composite": false,
 		"declaration": true,
@@ -22,11 +23,11 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist", "examples/**/*"]
+	"include": ["src/**/*.ts", "scripts/**/*.ts"],
+	"exclude": ["node_modules", "dist", "examples/**/*", "src/templates/**/*"]
 }

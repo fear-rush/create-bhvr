@@ -1,22 +1,20 @@
 import path from "node:path";
-import fs from "fs-extra";
-import type { ProjectOptions } from "@/types";
-import yoctoSpinner from "yocto-spinner";
-import pc from "picocolors";
 import { consola } from "consola";
-import { addPackageDependency } from "@/utils/add-package-dependency";
+import fs from "fs-extra";
+import pc from "picocolors";
+import yoctoSpinner from "yocto-spinner";
+import type { ResolvedProjectOptions } from "@/types";
 import { EXTRAS_DIR } from "@/utils";
+import { addPackageDependency } from "@/utils/add-package-dependency";
 import { nameGenerator } from "@/utils/name-generator";
 
-export const tanstackQueryInstaller = async (
-	options: Required<ProjectOptions>,
-): Promise<boolean> => {
+export const tanstackQueryInstaller = async (options: ResolvedProjectOptions): Promise<boolean> => {
 	const spinner = yoctoSpinner({
 		text: "Setting up TanStack Query...",
 	}).start();
 
 	try {
-		const { projectName, rpc, shadcn, tailwind, tanstackQuery } = options;
+		const { projectName, tanstackQuery } = options;
 
 		const projectPath = path.resolve(process.cwd(), projectName);
 		spinner.text = "Installing TanStack Query...";
@@ -25,23 +23,6 @@ export const tanstackQueryInstaller = async (
 			target: "client",
 			projectName,
 		});
-
-		const selectedTemplate = nameGenerator("App.tsx", {
-			rpc,
-			shadcn,
-			tailwind,
-			tanstackQuery,
-		});
-
-		const appTsxSrc = path.join(
-			EXTRAS_DIR,
-			"client",
-			"src",
-			"App.tsx",
-			selectedTemplate,
-		);
-		const appTsxTarget = path.join(projectPath, "client", "src", "App.tsx");
-		fs.copySync(appTsxSrc, appTsxTarget);
 
 		const mainTsxSrc = path.join(
 			EXTRAS_DIR,

@@ -4,4 +4,4 @@ export * from "./initialize-git";
 export * from "./install-dependencies";
 export * from "./prompt-for-options";
 export * from "./scaffold-template";
-export * from "./setup-biome";
+export * from "./remove-lint-tools";

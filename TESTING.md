@@ -1,60 +1,28 @@
-# Testing Guide
+# Testing
 
-This project uses [Bun Test](https://bun.sh/docs/cli/test) for focused, high-value testing of core business logic.
+Use Bun 1.4.2 or newer and Node.js 22.22 or newer. The generator and generated projects use Oxc.
 
-## Running Tests
-
-```bash
-# Run all tests
+```sh
+bun install
+bun run type-check
+bun run lint:check
+bun run format:check
 bun test
-
-# Run tests in watch mode (for development)
-bun test --watch
-
-# Run tests with coverage report
-bun test --coverage
+bun run test:combinations
+bun run test:generated
 ```
 
-## Test Philosophy
+`test:combinations` generates every valid built-in content configuration without installing dependencies or initializing Git. The 288 cases cover three styles, no router or TanStack Router, Query on or off, three valid database/auth states, and independent Docker, prek, and Scalar flags. It checks files, manifests, dependency absence, and unresolved placeholders. It does not prove compilation or runtime correctness for all cases.
 
-This project follows a **focused testing approach** that prioritizes:
+`test:generated` installs and checks all 12 core style/router/Query combinations plus eight addon profiles. Every case must pass build, types, lint, formatting, and public API tests. Database profiles also check migration snapshots. Pass a case prefix to `bun scripts/verify-generated.ts`, for example `core-shadcn` or `addons`.
 
-1. **High Value**: Test core business logic and data validation
-2. **Fast Execution**: No slow I/O operations or complex mocking
-3. **Maintainability**: Simple, reliable tests that won't break with dependencies
-4. **Clarity**: Each test has a clear purpose and validates real behavior
-
-## What We Test ✅
-
-### **Core Utilities** (100% Coverage)
-- `src/utils/try-catch.test.ts` - Error handling wrapper functionality
-- `src/utils/templates.test.ts` - Template configuration and Hono code generation
-- `src/utils/constants.test.ts` - Application constants validation
-- `src/types.test.ts` - TypeScript type definitions and interfaces
-
-## What We DON'T Test ❌
-
-**CLI Functions with External Dependencies:**
-- File system operations (degit, fs-extra)
-- Interactive prompts (consola)
-- System commands (git, bun install)
-- Process management (process.exit)
-
-**Why:** These functions are integration points with the OS and external tools. Testing them would require complex mocking that provides little value and high maintenance overhead.
-
-## Test Configuration
-
-### `bunfig.toml`
-```toml
-[test]
-coverage = true
-timeout = 5000
-
-[test.env]
-NODE_ENV = "test"
+```sh
+bun run test:tools
+bun run test:auth
 ```
 
-### Package Scripts
-- `bun test` - Run all tests
-- `bun test --watch` - Watch mode for development
-- `bun test --coverage` - Generate coverage reports
+`test:tools` checks Scalar responses and installed prek hooks, including formatter changes, lint failures, type errors, staged dotenv files, and synthetic credentials with redacted output. Its first run downloads the Gitleaks hook environment.
+
+`test:auth` requires Docker. It checks email authentication, sessions, trusted origins, migrations, schema regeneration, and persistence using disposable PostgreSQL containers. Test containers and volumes are removed afterward.
+
+CI runs the same checks. A failed build, type check, lint, formatting check, or integration test fails the job. Add regression cases when changing an installer or optional integration.

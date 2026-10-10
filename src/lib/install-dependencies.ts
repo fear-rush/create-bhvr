@@ -49,12 +49,10 @@ export async function installDependencies(
 		await execa(packageManager, ["install"], { cwd: projectPath });
 		spinner.success(`Dependencies installed with ${packageManager}`);
 		return true;
-	} catch (_err) {
+	} catch {
 		spinner.error("Failed to install dependencies.");
 		console.log(
-			pc.yellow(
-				"You can install them manually after navigating to the project directory.",
-			),
+			pc.yellow("You can install them manually after navigating to the project directory."),
 		);
 		return false;
 	}

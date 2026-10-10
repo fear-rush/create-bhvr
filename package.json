@@ -2,59 +2,70 @@
 	"name": "create-bhvr",
 	"version": "0.6.4",
 	"description": "Create a new bhvr project",
-	"type": "module",
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
+	"keywords": [
+		"bun",
+		"create",
+		"hono",
+		"monorepo",
+		"react",
+		"starter",
+		"template",
+		"vite"
+	],
+	"license": "MIT",
+	"author": "Steve Simkins",
 	"bin": {
 		"create-bhvr": "./dist/index.js"
 	},
 	"files": [
 		"dist"
 	],
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "bun build src/index.ts --outdir dist --target node && cp -r src/templates dist/",
+		"build": "bun build src/index.ts --outdir dist --target node && rm -rf dist/templates && cp -r src/templates dist/",
 		"start": "bun ./dist/index.js",
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
-		"lint": "biome lint --write src package.json",
-		"lint:check": "biome lint src package.json",
-		"format": "biome format --write src package.json",
-		"format:check": "biome format src package.json"
-	},
-	"keywords": [
-		"bun",
-		"vite",
-		"react",
-		"hono",
-		"monorepo",
-		"starter",
-		"template",
-		"create"
-	],
-	"author": "Steve Simkins",
-	"license": "MIT",
-	"devDependencies": {
-		"@biomejs/biome": "2.2.4",
-		"@types/degit": "^2.8.6",
-		"@types/figlet": "^1.7.0",
-		"@types/fs-extra": "^11.0.4",
-		"@types/inquirer": "^9.0.9",
-		"@types/node": "^20.19.10",
-		"@types/prompts": "^2.4.9",
-		"ts-node": "^10.9.2",
-		"typescript": "^5.9.2"
+		"lint": "oxlint src scripts",
+		"lint:check": "oxlint src scripts",
+		"format": "oxfmt --write .",
+		"format:check": "oxfmt --check .",
+		"type-check": "tsc --noEmit",
+		"sync:base": "bun scripts/sync-base.ts",
+		"test:generated": "bun run build && bun scripts/verify-generated.ts",
+		"test:auth": "bun run build && bun scripts/verify-auth.ts",
+		"test:tools": "bun run build && bun scripts/verify-developer-tools.ts",
+		"lint:fix": "oxlint --fix src scripts",
+		"test:combinations": "bun scripts/check-template-combinations.ts"
 	},
 	"dependencies": {
-		"commander": "^11.1.0",
-		"consola": "^3.4.2",
-		"degit": "^2.8.4",
-		"execa": "^7.2.0",
-		"fs-extra": "^11.3.1",
-		"picocolors": "^1.1.1",
-		"yocto-spinner": "^1.0.0"
+		"commander": "15.0.0",
+		"consola": "3.4.2",
+		"degit": "3.10.0",
+		"execa": "10.1.0",
+		"fs-extra": "11.4.1",
+		"picocolors": "1.1.1",
+		"yocto-spinner": "1.2.2"
+	},
+	"devDependencies": {
+		"@types/bun": "1.4.2",
+		"@types/degit": "2.8.6",
+		"@types/fs-extra": "11.0.4",
+		"@types/node": "26.6.4",
+		"oxc-parser": "0.153.0",
+		"oxfmt": "0.72.0",
+		"oxlint": "1.87.0",
+		"typescript": "7.0.2"
+	},
+	"overrides": {
+		"@types/node": "26.6.4"
 	},
 	"engines": {
-		"node": ">=18"
-	}
+		"bun": ">=1.4.2",
+		"node": ">=22.22.0"
+	},
+	"packageManager": "bun@1.4.2"
 }

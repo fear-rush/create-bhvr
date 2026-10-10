@@ -1,47 +1,18 @@
-import type { ProjectOptions } from "@/types";
-import { setupBiome } from "./setup-biome";
-import path from "node:path";
+import { installAddons } from "@/installers/addons";
+import { installDeveloperTools } from "@/installers/developer-tools";
 import { tanstackQueryInstaller } from "@/installers/tanstack-query";
-import { rpcInstaller } from "@/installers/rpc";
-import { reactRouterInstaller } from "@/installers/react-router";
-import { reactRouterMpaInstaller } from "@/installers/react-router-mpa";
 import { tanstackRouterInstaller } from "@/installers/tanstack-router";
+import type { ResolvedProjectOptions } from "@/types";
 
-export async function installPackages(
-	options: Required<ProjectOptions>,
-): Promise<boolean> {
-	const { projectName, rpc, router, linter, tanstackQuery } = options;
-
-	const projectPath = path.resolve(process.cwd(), projectName);
-
-	if (rpc) {
-		await rpcInstaller(options);
+export async function installPackages(options: ResolvedProjectOptions): Promise<boolean> {
+	const installers = [];
+	if (options.tanstackQuery) installers.push(tanstackQueryInstaller);
+	if (options.router === "tanstackrouter") installers.push(tanstackRouterInstaller);
+	for (const installer of installers) {
+		if (!(await installer(options)))
+			throw new Error("Failed to configure a selected project option.");
 	}
-
-	if (linter === "biome") {
-		await setupBiome(projectPath);
-	}
-
-	if (tanstackQuery) {
-		await tanstackQueryInstaller(options);
-	}
-
-	if (router !== "none") {
-		switch (router) {
-			case "reactrouter": {
-				await reactRouterInstaller(options);
-				break;
-			}
-			case "reactroutermpa": {
-				await reactRouterMpaInstaller(options);
-				break;
-			}
-			case "tanstackrouter": {
-				await tanstackRouterInstaller(options);
-				break;
-			}
-		}
-	}
-
-	return false;
+	await installAddons(options);
+	await installDeveloperTools(options);
+	return true;
 }

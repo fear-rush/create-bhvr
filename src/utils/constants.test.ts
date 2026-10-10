@@ -1,9 +1,9 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { DEFAULT_REPO } from "./constants";
 
 describe("constants", () => {
 	it("should have correct default repository", () => {
-		expect(DEFAULT_REPO).toBe("stevedylandev/bhvr");
+		expect(DEFAULT_REPO).toBe("fear-rush/bhvr");
 	});
 
 	it("should be a string", () => {

@@ -14,6 +14,5 @@ export function displayBanner() {
 	console.log("\n");
 	console.log(pc.yellowBright(text));
 
-	consola.info(`${pc.cyan("🦫 Lets build 🦫")}`);
-	consola.info(`${pc.blue("https://github.com/stevedylandev/bhvr")}\n`);
+	consola.info(`${pc.blue("https://github.com/fear-rush/bhvr")}\n`);
 }
