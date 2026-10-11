@@ -50,6 +50,18 @@ try {
 		const project = path.join(temporary, name);
 		console.log(`Checking generated project: ${name}`);
 		await execa("bun", [cli, project, "-y", "--no-git", ...flags]);
+		if (flags.includes("tanstackrouter")) {
+			const tree = path.join(project, "client", "src", "routeTree.gen.ts");
+			if (!(await fs.pathExists(tree)))
+				throw new Error(`Install did not generate the route tree: ${name}`);
+			// Verify editor types before build or type-check can regenerate the file.
+			await execa("bun", ["run", "tsc", "-b", "--noEmit"], { cwd: path.join(project, "client") });
+			// A cached workspace build must not prevent regeneration after a clean checkout.
+			await fs.remove(tree);
+			await execa("bun", ["install", "--frozen-lockfile"], { cwd: project });
+			if (!(await fs.pathExists(tree)))
+				throw new Error(`Reinstall did not restore the route tree: ${name}`);
+		}
 		if (flags.includes("better-auth") || flags.includes("postgres")) {
 			await fs.writeFile(
 				path.join(project, "server", ".env"),
@@ -57,7 +69,15 @@ try {
 			);
 		}
 		for (const command of ["build", "type-check", "lint", "test"]) {
-			await execa("bun", ["run", command], { cwd: project });
+			const result = await execa("bun", ["run", command], { cwd: project });
+			const output = `${result.stdout}\n${result.stderr}`;
+			if (/replaceRouteChunk|Fast refresh only works|react\(only-export-components\)/.test(output))
+				throw new Error(`Router warning in ${name}: ${command}\n${output}`);
+		}
+		if (flags.includes("tanstackrouter")) {
+			const assets = await fs.readdir(path.join(project, "client", "dist", "assets"));
+			if (!assets.some((file) => /^routes-.*\.js$/.test(file)))
+				throw new Error(`Missing code-split route chunk: ${name}`);
 		}
 		await execa("bun", ["run", "format:check"], { cwd: project });
 		if (flags.includes("postgres") || flags.includes("better-auth")) {

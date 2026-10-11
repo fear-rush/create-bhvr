@@ -16,7 +16,9 @@ const excluded = new Set([
 	"bun.lockb",
 	".DS_Store",
 ]);
+// The Oxc addon bundles the plugin once for all generated variants.
 const filter = (file: string) =>
+	!file.startsWith(path.join(source, "tools", "oxlint", "anti-slop")) &&
 	!excluded.has(path.basename(file)) &&
 	(!/^\.env(?:\.|$)/.test(path.basename(file)) || file.endsWith(".example"));
 await fs.remove(path.join(templates, "default"));
@@ -30,7 +32,9 @@ for (const template of ["tailwind", "shadcn"]) {
 	for (const file of [
 		"package.json",
 		"turbo.json",
+		"bunfig.toml",
 		"tsconfig.json",
+		"tsconfig.base.json",
 		".oxlintrc.json",
 		".oxfmtrc.json",
 		".gitignore",
@@ -62,6 +66,13 @@ for (const template of ["tailwind", "shadcn"]) {
 	await fs.writeJson(file, styled, { spaces: 2 });
 }
 for (const template of ["default", "tailwind", "shadcn"]) {
+	// Package managers omit .gitignore and bunfig.toml files when packing the CLI.
+	for (const workspace of ["", "client", "server", "shared"]) {
+		for (const name of [".gitignore", "bunfig.toml"]) {
+			const file = path.join(templates, template, workspace, name);
+			if (await fs.pathExists(file)) await fs.move(file, `${file}.template`, { overwrite: true });
+		}
+	}
 	const test = path.join(templates, template, "server", "src", "index.test.ts");
 	if (await fs.pathExists(test)) await fs.move(test, `${test}.template`, { overwrite: true });
 }

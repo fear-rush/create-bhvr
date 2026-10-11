@@ -64,7 +64,7 @@ test("prek uses Oxc and adds only a root development dependency", async () => {
 test("Scalar alone documents health route without introducing auth or database dependencies", async () => {
 	const { project } = await generate({ scalar: true });
 	const pkg = await fs.readJson(path.join(project, "server/package.json"));
-	expect(pkg.dependencies["@scalar/hono-api-reference"]).toBe("0.12.10");
+	expect(pkg.dependencies["@scalar/hono-api-reference"]).toBe("0.12.11");
 	expect(pkg.dependencies["drizzle-orm"]).toBeUndefined();
 	expect(pkg.dependencies["better-auth"]).toBeUndefined();
 	const doc = await document(project);

@@ -36,3 +36,5 @@ bun run test
 - `shared/`: shared TypeScript types
 
 Database credentials and auth secrets belong in the server environment. Variables prefixed with `VITE_` are available to frontend code.
+
+`bunfig.toml` requires newly resolved package versions to be at least three days old. Existing versions in `bun.lock` remain unchanged.

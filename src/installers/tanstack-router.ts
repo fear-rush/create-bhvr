@@ -73,9 +73,19 @@ export const tanstackRouterInstaller = async (
 		);
 		const pkgPath = path.join(projectPath, "client", "package.json");
 		const pkg = await fs.readJson(pkgPath);
-		pkg.scripts.build = "tsr generate && tsc -b && vite build";
-		pkg.scripts["type-check"] = "tsr generate && tsc -b --noEmit";
+		pkg.scripts["routes:generate"] = "bun run --bun tsr generate";
+		pkg.scripts.build = "bun run routes:generate && tsc -b && vite build";
+		pkg.scripts["type-check"] = "bun run routes:generate && tsc -b --noEmit";
 		await fs.writeJson(pkgPath, pkg, { spaces: 2 });
+		const rootPkgPath = path.join(projectPath, "package.json");
+		const rootPkg = await fs.readJson(rootPkgPath);
+		rootPkg.scripts ??= {};
+		rootPkg.scripts["routes:generate"] = "bun run --cwd client routes:generate";
+		const postinstall = rootPkg.scripts.postinstall;
+		rootPkg.scripts.postinstall = postinstall
+			? `bun run routes:generate && ${postinstall}`
+			: "bun run routes:generate";
+		await fs.writeJson(rootPkgPath, rootPkg, { spaces: 2 });
 
 		spinner.success("TanStack Router setup completed");
 		return true;

@@ -43,6 +43,11 @@ test("plain projects use Oxc and TypeScript 7 without database or auth requireme
 	expect(await fs.pathExists(path.join(project, "server/src/auth.ts"))).toBe(false);
 	expect(await fs.pathExists(path.join(project, "node_modules"))).toBe(false);
 	expect(await fs.pathExists(path.join(project, "server/src/index.test.ts"))).toBe(true);
+	for (const workspace of ["", "client", "server"]) {
+		expect(await fs.pathExists(path.join(project, workspace, ".gitignore"))).toBe(true);
+		expect(await fs.pathExists(path.join(project, workspace, ".gitignore.template"))).toBe(false);
+	}
+	expect(await fs.readFile(path.join(project, ".gitignore"), "utf8")).toContain(".env");
 });
 
 test("Docker can be generated independently and its down command preserves data", async () => {
@@ -73,7 +78,8 @@ test("auth, Query, routing, and Oxc compose without installing packages", async 
 	expect(server.dependencies["better-auth"]).toBeDefined();
 	expect(client.dependencies["better-auth"]).toBeDefined();
 	expect(client.dependencies["@tanstack/react-query"]).toBeDefined();
-	expect(client.scripts.build).toContain("tsr generate");
+	expect(client.scripts["routes:generate"]).toBe("bun run --bun tsr generate");
+	expect(client.scripts.build).toContain("bun run routes:generate");
 	expect(server.exports["./client"]).toBeUndefined();
 	expect(client.dependencies.server).toBeUndefined();
 	expect(entry).toContain("const app = new Hono");

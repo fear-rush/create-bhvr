@@ -30,6 +30,12 @@ export async function scaffoldTemplate(options: ResolvedProjectOptions): Promise
 	try {
 		if (!repo && !branch) {
 			await fs.copy(path.join(BASE_DIR, template), projectPath);
+			for (const workspace of ["", "client", "server", "shared"]) {
+				for (const name of [".gitignore", "bunfig.toml"]) {
+					const file = path.join(projectPath, workspace, `${name}.template`);
+					if (await fs.pathExists(file)) await fs.move(file, file.replace(/\.template$/, ""));
+				}
+			}
 			const testTemplate = path.join(projectPath, "server", "src", "index.test.ts.template");
 			if (await fs.pathExists(testTemplate))
 				await fs.move(testTemplate, testTemplate.replace(/\.template$/, ""));

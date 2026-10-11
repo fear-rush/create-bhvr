@@ -48,14 +48,14 @@ repos:
         language: system
         entry: {{format}}
         files: '{{formatFiles}}'
-        exclude: '(^|/)(dist/|build/|drizzle/|routeTree\.gen\.ts$)'
+        exclude: '(^|/)(dist/|build/|drizzle/|routeTree\.gen\.ts$)|^(?:\.(?:agent|agents|claude|codex|continue|cursor|gemini|opencode|pi|roo|windsurf)/|tools/oxlint/anti-slop/)'
         priority: 3
       - id: lint
         name: Lint staged code
         language: system
         entry: {{lint}}
         files: '\.[cm]?[jt]sx?$'
-        exclude: '(^|/)(dist/|build/|routeTree\.gen\.ts$)'
+        exclude: '(^|/)(dist/|build/|routeTree\.gen\.ts$)|^(?:\.(?:agent|agents|claude|codex|continue|cursor|gemini|opencode|pi|roo|windsurf)/|tools/oxlint/anti-slop/)'
         priority: 10
       - id: type-check
         name: Check workspace types

@@ -104,6 +104,7 @@ export async function installAddons(options: ResolvedProjectOptions): Promise<vo
 	await updatePackage(projectPath, "", (pkg) => {
 		Object.assign(pkg.devDependencies, {
 			oxlint: VERSIONS.oxlint,
+			"@oxlint/plugins": VERSIONS["@oxlint/plugins"],
 			oxfmt: VERSIONS.oxfmt,
 		});
 	});
@@ -149,11 +150,11 @@ export async function installAddons(options: ResolvedProjectOptions): Promise<vo
 		const file = path.join(projectPath, "turbo.json");
 		const turbo = await fs.readJson(file);
 		const env = serverEnv.map((line) => line.split("=")[0]);
-		for (const task of ["dev", "test"]) {
-			turbo.tasks[task].passThroughEnv = [
-				...new Set([...(turbo.tasks[task].passThroughEnv ?? []), ...env]),
-			];
-		}
+		turbo.tasks.dev.passThroughEnv = [
+			...new Set([...(turbo.tasks.dev.passThroughEnv ?? []), ...env]),
+		];
+		// Cached tests must change their hash when their environment changes.
+		turbo.tasks.test.env = [...new Set([...(turbo.tasks.test.env ?? []), ...env])];
 		await fs.writeJson(file, turbo, { spaces: 2 });
 	}
 }

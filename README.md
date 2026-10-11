@@ -32,6 +32,8 @@ bun dist/index.js ../my-app -y \
 
 Generated projects contain an empty React page, a server health endpoint, and configuration for the selected stack. No example features, demo assets, fixtures, or seed scripts are generated.
 
+Every project includes a concise English `AGENTS.md` with workspace commands and selected-stack instructions. `CLAUDE.md` imports it. Existing instruction files in custom repositories are preserved.
+
 The upstream `bun create bhvr` command continues to use the upstream npm package. To distribute this fork, publish the CLI under your own npm package name and document that package's invocation. Building or pushing these repositories alone does not change the upstream command.
 
 > [!NOTE]
@@ -46,7 +48,7 @@ The upstream `bun create bhvr` command continues to use the upstream npm package
   - `shadcn`: Pre-configured with Tailwind CSS and shadcn/ui.
 - **TanStack Query**: Add TanStack Query for powerful data fetching and state management.
 - **TanStack Router**: Optionally add client routing.
-- **Oxc**: Oxlint and Oxfmt handle linting and formatting.
+- **Oxc**: Oxlint and Oxfmt handle linting and formatting. All 15 generic anti-slop rules are enabled; Effect rules are excluded.
 - **Database**: Optionally add Drizzle with PostgreSQL and explicit SQL migrations.
 - **Local PostgreSQL**: Optionally add Docker Compose with persistent storage.
 - **Authentication**: Optionally add Better Auth with a React client and Hono auth handler.

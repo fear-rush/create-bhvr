@@ -1,9 +1,9 @@
-// Stable versions checked against npm on 2026-10-10.
+// Stable versions checked against npm on 2026-10-11.
 // Versions respect a three-day minimum release age.
 export const VERSIONS: Record<string, string> = {
 	bun: "1.4.2",
 	"@j178/prek": "0.5.5",
-	"@scalar/hono-api-reference": "0.12.10",
+	"@scalar/hono-api-reference": "0.12.11",
 	typescript: "7.0.2",
 	react: "19.3.0",
 	"react-dom": "19.3.0",
@@ -22,6 +22,7 @@ export const VERSIONS: Record<string, string> = {
 	"@better-auth/cli": "1.4.22",
 	"@better-auth/drizzle-adapter": "1.7.7",
 	oxlint: "1.87.0",
+	"@oxlint/plugins": "1.87.0",
 	oxfmt: "0.72.0",
 	dotenv: "18.0.6",
 	commander: "15.0.0",
@@ -47,7 +48,7 @@ export const VERSIONS: Record<string, string> = {
 	"@radix-ui/react-slot": "1.4.0",
 	"class-variance-authority": "0.7.1",
 	clsx: "2.1.1",
-	"lucide-react": "1.52.0",
+	"lucide-react": "1.53.0",
 	"tailwind-merge": "3.7.0",
 	"tw-animate-css": "1.4.0",
 };

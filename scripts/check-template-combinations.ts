@@ -37,10 +37,64 @@ try {
 									git: false,
 								};
 								await createProject(project, options);
+								const guide = await fs.readFile(path.join(project, "AGENTS.md"), "utf8");
+								assert.equal(
+									await fs.readFile(path.join(project, "CLAUDE.md"), "utf8"),
+									"@AGENTS.md\n",
+								);
+								assert(guide.split(/\s+/).length < 350);
+								for (const [text, enabled] of [
+									["Drizzle", state.database === "postgres"],
+									["Better Auth", state.auth === "better-auth"],
+									["local PostgreSQL", dockerPostgres],
+									["routeTree.gen.ts", router === "tanstackrouter"],
+									["TanStack Query", tanstackQuery],
+									["Tailwind", template !== "default"],
+									["shadcn/ui", template === "shadcn"],
+									["Scalar", scalar],
+									["prek", precommit],
+								] as const)
+									assert.equal(guide.includes(text), enabled);
 								const root = await fs.readJson(path.join(project, "package.json"));
+								const editor = await fs.readJson(path.join(project, "tsconfig.json"));
+								assert.equal(editor.compilerOptions.noEmit, true);
+								assert.equal(editor.compilerOptions.allowImportingTsExtensions, true);
+								assert.equal(editor.extends, "./tsconfig.base.json");
+								assert(editor.include.includes("tools/**/*.ts"));
+								assert(editor.include.includes("server/src/**/*.test.ts"));
+								for (const workspace of ["client", "server", "shared"]) {
+									const config = await fs.readFile(
+										path.join(project, workspace, "tsconfig.json"),
+										"utf8",
+									);
+									assert.match(config, /"extends"\s*:\s*"\.\.\/tsconfig\.base\.json"/);
+								}
+
 								const client = await fs.readJson(path.join(project, "client/package.json"));
 								const server = await fs.readJson(path.join(project, "server/package.json"));
 								assert.equal(root.scripts.lint, "oxlint .");
+								const lint = await fs.readJson(path.join(project, ".oxlintrc.json"));
+								assert.equal(
+									Object.entries(lint.rules).filter(
+										([name, level]) => name.startsWith("anti-slop/") && level === "error",
+									).length,
+									15,
+								);
+								assert.deepEqual(lint.jsPlugins, [
+									{ name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" },
+								]);
+								assert.equal(root.devDependencies["@oxlint/plugins"], root.devDependencies.oxlint);
+								assert(await fs.pathExists(path.join(project, "tools/oxlint/anti-slop/index.ts")));
+								assert.equal(
+									await fs.pathExists(path.join(project, "tools/oxlint/anti-slop/effect")),
+									false,
+								);
+								const fmt = await fs.readJson(path.join(project, ".oxfmtrc.json"));
+								for (const config of [lint, fmt]) {
+									assert(config.ignorePatterns.includes("tools/oxlint/anti-slop/**"));
+									assert(config.ignorePatterns.includes(".agents/**"));
+								}
+
 								assert.equal(root.scripts.format, "oxfmt --write .");
 								assert.equal(Boolean(root.devDependencies["@j178/prek"]), precommit);
 								assert.equal(Boolean(server.dependencies["@scalar/hono-api-reference"]), scalar);
@@ -98,6 +152,8 @@ try {
 									cwd: project,
 									absolute: true,
 								})) {
+									// Vendored rule diagnostics use ESLint's {{name}} message interpolation.
+									if (file.startsWith(path.join(project, "tools/oxlint/anti-slop"))) continue;
 									assert(
 										!/\{\{\w+\}\}/.test(await fs.readFile(file, "utf8")),
 										`Unresolved placeholder: ${file}`,

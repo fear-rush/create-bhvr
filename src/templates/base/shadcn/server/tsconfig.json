@@ -1,5 +1,5 @@
 {
-	"extends": "../tsconfig.json",
+	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		// Environment settings
 		"lib": ["ESNext"],
@@ -23,5 +23,5 @@
 		"allowImportingTsExtensions": false
 	},
 	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.ts", "**/*.test.ts"]
+	"exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

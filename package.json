@@ -29,8 +29,8 @@
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
-		"lint": "oxlint src scripts",
-		"lint:check": "oxlint src scripts",
+		"lint": "oxlint --disable-nested-config src scripts",
+		"lint:check": "oxlint --disable-nested-config src scripts",
 		"format": "oxfmt --write .",
 		"format:check": "oxfmt --check .",
 		"type-check": "tsc --noEmit",
@@ -38,7 +38,7 @@
 		"test:generated": "bun run build && bun scripts/verify-generated.ts",
 		"test:auth": "bun run build && bun scripts/verify-auth.ts",
 		"test:tools": "bun run build && bun scripts/verify-developer-tools.ts",
-		"lint:fix": "oxlint --fix src scripts",
+		"lint:fix": "oxlint --disable-nested-config --fix src scripts",
 		"test:combinations": "bun scripts/check-template-combinations.ts"
 	},
 	"dependencies": {

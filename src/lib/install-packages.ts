@@ -1,4 +1,5 @@
 import { installAddons } from "@/installers/addons";
+import { installAgentDocs } from "@/installers/agent-docs";
 import { installDeveloperTools } from "@/installers/developer-tools";
 import { tanstackQueryInstaller } from "@/installers/tanstack-query";
 import { tanstackRouterInstaller } from "@/installers/tanstack-router";
@@ -14,5 +15,6 @@ export async function installPackages(options: ResolvedProjectOptions): Promise<
 	}
 	await installAddons(options);
 	await installDeveloperTools(options);
+	await installAgentDocs(options);
 	return true;
 }
