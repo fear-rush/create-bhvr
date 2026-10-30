@@ -9,7 +9,7 @@ A command-line interface (CLI) to quickly scaffold a new `bhvr` project. `bhvr` 
 
 ## Getting Started
 
-This fork bundles the base templates with TypeScript 7 and Oxc tooling. Drizzle PostgreSQL, Docker PostgreSQL, and Better Auth are optional. Use Bun 1.4.2 or newer and Node.js 22.22 or newer for the CLI and build tools. Docker with Compose is needed only when using local PostgreSQL containers.
+This fork bundles the base templates with TypeScript 7 and Oxc tooling. Drizzle PostgreSQL, Docker PostgreSQL, and Better Auth are optional. Use Bun 1.4.4 or newer and Node.js 22.22 or newer for the CLI and build tools. Docker with Compose is needed only when using local PostgreSQL containers.
 
 ```bash
 bun install

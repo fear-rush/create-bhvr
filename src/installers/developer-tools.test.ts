@@ -50,7 +50,7 @@ test("prek uses Oxc and adds only a root development dependency", async () => {
 	const { project, result } = await generate({ precommit: true });
 	expect(result?.hooksInstalled).toBe(false);
 	const pkg = await fs.readJson(path.join(project, "package.json"));
-	expect(pkg.devDependencies["@j178/prek"]).toBe("0.5.5");
+	expect(pkg.devDependencies["@j178/prek"]).toBe("0.5.7");
 	expect(pkg.dependencies?.["@j178/prek"]).toBeUndefined();
 	expect(pkg.scripts.postinstall).not.toContain("prek");
 	const config = await fs.readFile(path.join(project, ".pre-commit-config.yaml"), "utf8");
@@ -64,7 +64,7 @@ test("prek uses Oxc and adds only a root development dependency", async () => {
 test("Scalar alone documents health route without introducing auth or database dependencies", async () => {
 	const { project } = await generate({ scalar: true });
 	const pkg = await fs.readJson(path.join(project, "server/package.json"));
-	expect(pkg.dependencies["@scalar/hono-api-reference"]).toBe("0.12.11");
+	expect(pkg.dependencies["@scalar/hono-api-reference"]).toBe("0.12.17");
 	expect(pkg.dependencies["drizzle-orm"]).toBeUndefined();
 	expect(pkg.dependencies["better-auth"]).toBeUndefined();
 	const doc = await document(project);

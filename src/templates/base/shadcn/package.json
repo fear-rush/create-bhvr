@@ -35,16 +35,16 @@
 		"format:check": "oxfmt --check ."
 	},
 	"devDependencies": {
-		"@oxlint/plugins": "1.87.0",
-		"@types/bun": "1.4.2",
-		"oxfmt": "0.72.0",
-		"oxlint": "1.87.0",
-		"turbo": "2.11.7",
+		"@oxlint/plugins": "1.90.0",
+		"@types/bun": "1.4.4",
+		"oxfmt": "0.75.0",
+		"oxlint": "1.90.0",
+		"turbo": "2.11.10",
 		"typescript": "7.0.2"
 	},
 	"engines": {
-		"bun": ">=1.4.2",
+		"bun": ">=1.4.4",
 		"node": ">=22.22.0"
 	},
-	"packageManager": "bun@1.4.2"
+	"packageManager": "bun@1.4.4"
 }

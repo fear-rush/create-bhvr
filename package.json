@@ -44,28 +44,28 @@
 	"dependencies": {
 		"commander": "15.0.0",
 		"consola": "3.4.2",
-		"degit": "3.10.0",
-		"execa": "10.1.0",
+		"degit": "3.10.1",
+		"execa": "10.2.1",
 		"fs-extra": "11.4.1",
 		"picocolors": "1.1.1",
 		"yocto-spinner": "1.2.2"
 	},
 	"devDependencies": {
-		"@types/bun": "1.4.2",
-		"@types/degit": "2.8.6",
+		"@types/bun": "1.4.4",
+		"@types/degit": "3.10.0",
 		"@types/fs-extra": "11.0.4",
-		"@types/node": "26.6.4",
-		"oxc-parser": "0.153.0",
-		"oxfmt": "0.72.0",
-		"oxlint": "1.87.0",
+		"@types/node": "26.6.6",
+		"oxc-parser": "0.156.0",
+		"oxfmt": "0.75.0",
+		"oxlint": "1.90.0",
 		"typescript": "7.0.2"
 	},
 	"overrides": {
-		"@types/node": "26.6.4"
+		"@types/node": "26.6.6"
 	},
 	"engines": {
-		"bun": ">=1.4.2",
+		"bun": ">=1.4.4",
 		"node": ">=22.22.0"
 	},
-	"packageManager": "bun@1.4.2"
+	"packageManager": "bun@1.4.4"
 }

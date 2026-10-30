@@ -4,7 +4,7 @@ A TypeScript workspace with an empty React page, a Hono health endpoint, and a s
 
 ## Requirements
 
-- Bun 1.4.2 or newer
+- Bun 1.4.4 or newer
 - Node.js 22.22 or newer for the CLI and build tools
 - Docker with Compose when using local PostgreSQL containers
 

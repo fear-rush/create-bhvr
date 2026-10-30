@@ -1,6 +1,6 @@
 # Testing
 
-Use Bun 1.4.2 or newer and Node.js 22.22 or newer. The generator and generated projects use Oxc.
+Use Bun 1.4.4 or newer and Node.js 22.22 or newer. The generator and generated projects use Oxc.
 
 ```sh
 bun install
